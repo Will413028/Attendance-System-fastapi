@@ -6,7 +6,7 @@ import schemas
 
 
 def create_user(db: Session, user: schemas.UserCreateInput):
-    db_user = models.User(**user.dict())
+    db_user = models.User(**user.model_dump())
 
     db.add(db_user)
     try:

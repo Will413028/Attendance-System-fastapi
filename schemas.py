@@ -1,4 +1,16 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
+from datetime import datetime
+
+
+class DateTimeBase(BaseModel):
+    created_at: str
+    updated_at: str
+
+    @validator("created_at", "updated_at", pre=True)
+    def datetime_to_str(cls, v: datetime):
+        if isinstance(v, datetime):
+            return datetime.strftime(v, "%Y-%m-%d %H:%M:%S")
+        return str(v)
 
 
 class UserCreateInput(BaseModel):
@@ -9,7 +21,7 @@ class UserCreateInput(BaseModel):
     phone: str = Field(max_length=20, title="Phone Number")
 
 
-class User(BaseModel):
+class User(DateTimeBase):
     id: int
     name: str
     account: str
@@ -18,4 +30,4 @@ class User(BaseModel):
     phone: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
