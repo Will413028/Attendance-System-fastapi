@@ -3,14 +3,14 @@ from typing import Annotated
 
 from fastapi import FastAPI, Depends
 
-import config
+from config import Settings
 
 app = FastAPI()
 
 
 @lru_cache
 def get_settings():
-    return config.Settings()
+    return Settings()
 
 
 @app.get("/")
@@ -19,7 +19,7 @@ def read_root():
 
 
 @app.get("/info")
-async def info(settings: Annotated[config.Settings, Depends(get_settings)]):
+async def info(settings: Annotated[Settings, Depends(get_settings)]):
     return {
-        "app_name": settings.app_name,
+        "database_url": settings.database_url,
     }
