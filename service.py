@@ -1,8 +1,25 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 
 import models
 import schemas
+
+
+def get_user_by_id(db: Session, id: int) -> models.User:
+    query = select(models.User).where(models.User.id == id)
+    user = db.execute(query).scalar()
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User not found')
+
+    return user
+
+
+def get_all_users(db: Session):
+    query = select(models.User)
+    users = db.execute(query).scalars().all()
+    return users
 
 
 def create_user(db: Session, user: schemas.UserCreateInput):
@@ -18,3 +35,26 @@ def create_user(db: Session, user: schemas.UserCreateInput):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='User create failed')
     return db_user
 
+
+def update_user(db: Session, update_data: schemas.UserUpdateInput, user: models.User) -> models.User:
+    update_data: dict = update_data.model_dump(exclude_unset=True, exclude_none=True)
+    for key, value in update_data.items():
+        setattr(user, key, value)
+
+    try:
+        db.commit()
+        db.refresh(user)
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='User update failed')
+
+    return user
+
+
+def delete_customer(db: Session, user: models.User):
+    try:
+        db.delete(user)
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='User delete failed')
