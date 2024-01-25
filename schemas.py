@@ -45,3 +45,7 @@ class UserUpdateInput(BaseModel):
 class LoginInput(BaseModel):
     account: Optional[str] = Field(max_length=100, title="Account")
     password: Optional[str] = Field(max_length=30, title="Password")
+
+
+class LoginReturn(User):
+    token: str

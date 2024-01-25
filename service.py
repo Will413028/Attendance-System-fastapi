@@ -11,9 +11,6 @@ def get_user_by_id(db: Session, id: int) -> models.User:
     query = select(models.User).where(models.User.id == id)
     user = db.execute(query).scalar()
 
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User not found')
-
     return user
 
 
