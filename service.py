@@ -4,6 +4,7 @@ from sqlalchemy import select
 
 import models
 import schemas
+import utils
 
 
 def get_user_by_id(db: Session, id: int) -> models.User:
@@ -16,6 +17,13 @@ def get_user_by_id(db: Session, id: int) -> models.User:
     return user
 
 
+def get_user_by_account(db: Session, account: str) -> models.User:
+    query = select(models.User).where(models.User.account == account)
+    user = db.execute(query).scalar()
+
+    return user
+
+
 def get_all_users(db: Session):
     query = select(models.User)
     users = db.execute(query).scalars().all()
@@ -23,6 +31,7 @@ def get_all_users(db: Session):
 
 
 def create_user(db: Session, user: schemas.UserCreateInput):
+    user.password = utils.get_password_hash(user.password)
     db_user = models.User(**user.model_dump())
 
     db.add(db_user)
@@ -51,7 +60,7 @@ def update_user(db: Session, update_data: schemas.UserUpdateInput, user: models.
     return user
 
 
-def delete_customer(db: Session, user: models.User):
+def delete_user(db: Session, user: models.User):
     try:
         db.delete(user)
         db.commit()
