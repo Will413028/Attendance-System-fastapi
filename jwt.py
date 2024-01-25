@@ -1,4 +1,4 @@
-from fastapi import status, Depends, HTTPException
+from fastapi import status, Depends, Cookie, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from typing import Union
@@ -24,12 +24,15 @@ def create_access_token(
     return encoded_jwt
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+async def get_current_user(token: str = Cookie(default=None, alias="access_token"), db: Session = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail='Could not validate credentials',
         headers={"WWW-Authenticate": "Bearer"}
     )
+    if token is None:
+        raise credentials_exception
+
     try:
         payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
 

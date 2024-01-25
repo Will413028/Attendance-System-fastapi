@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import Annotated
 
-from fastapi import FastAPI, status, Depends, HTTPException
+from fastapi import FastAPI, status, Depends, Response, HTTPException
 from sqlalchemy.orm import Session
 
 import dependencies
@@ -58,7 +58,8 @@ def delete_user(id: int, db: Session = Depends(get_db)):
 
 
 @app.post("/login", response_model=schemas.LoginReturn)
-def login(user: models.User = Depends(dependencies.authenticate_user)):
+def login(response: Response, user: models.User = Depends(dependencies.authenticate_user)):
     access_token = jwt.create_access_token(data={"sub": user.name, "id": user.id})
     user.token = access_token
+    response.set_cookie(key="access_token", value=access_token, httponly=True)
     return user
