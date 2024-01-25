@@ -4,7 +4,7 @@ services:
       container_name: attendance-system-backend
       image: attendance-system-backend
       ports:
-        - "80:80"
+        - "8000:8000"
       restart: always
     mysql:
         container_name: mysql
@@ -19,7 +19,7 @@ services:
             ]
         environment:
             - MYSQL_RANDOM_ROOT_PASSWORD=yes
-            - MYSQL_USER=myuser
+              - MYSQL_USER=myuser
             - MYSQL_PASSWORD=12345678
-            - MYSQL_DATABASE=attendance-system
+              - MYSQL_DATABASE=attendance-system
         restart: always
