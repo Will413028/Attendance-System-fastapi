@@ -53,7 +53,7 @@ jobs:
       id-token: "write"
 
     env:
-      IMAGE_NAME: gcr.io/${{secrets.PROJECT_ID}}/app
+      IMAGE_NAME: gcr.io/${{secrets.PROJECT_ID}}/attendance-system-backend
 
     steps:
       - name: Checkout repository
@@ -80,7 +80,7 @@ jobs:
         with:
           image: ${{ env.IMAGE_NAME }}
           region: asia-east1
-          service: app
+          service: attendance-system-backend
           flags: --port=8000
 
       - name: Test URL
