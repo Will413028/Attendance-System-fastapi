@@ -1,7 +1,8 @@
 from functools import lru_cache
-from typing import Annotated
+from typing import Annotated, Optional, List
+from datetime import date
 
-from fastapi import FastAPI, status, Depends, Response, HTTPException
+from fastapi import FastAPI, status, Depends, Response, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
@@ -47,9 +48,8 @@ def get_user_by_id(id: int, db: Session = Depends(get_db), current_user: dict = 
 
 
 @app.get("/users", response_model=list[schemas.User | None])
-def get_all_users(db: Session = Depends(get_db)):
-    return service.get_all_users(db)
-
+def get_all_users(db: Session = Depends(get_db), attendance_type: Optional[str] = Query(None), attendance_date: Optional[date] = Query(None)):
+    return service.get_all_users(db, attendance_type=attendance_type, attendance_date=attendance_date)
 
 @app.post("/users", status_code=status.HTTP_201_CREATED, response_model=schemas.User)
 def create_user(dependency=Depends(dependencies.check_new_user)):

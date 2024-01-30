@@ -1,6 +1,9 @@
+from typing import Optional
+from datetime import date
+
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import select, func
 
 import models
 import schemas
@@ -21,9 +24,20 @@ def get_user_by_account(db: Session, account: str) -> models.User:
     return user
 
 
-def get_all_users(db: Session):
+def get_all_users(db: Session, attendance_type: Optional[str] = None, attendance_date: Optional[date] = None):
     query = select(models.User)
+
+    if attendance_type or attendance_date:
+        query = query.join(models.AttendanceRecord)
+    
+    if attendance_type:
+        query = query.filter(models.AttendanceRecord.attendance_type == attendance_type)
+
+    if attendance_date:
+        query = query.filter(func.date(models.AttendanceRecord.attendance_date) == attendance_date)
+
     users = db.execute(query).scalars().all()
+
     return users
 
 

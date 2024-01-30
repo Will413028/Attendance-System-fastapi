@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator, EmailStr
+from pydantic import BaseModel, Field, validator, EmailStr
 from datetime import datetime
 from typing import Optional
 
@@ -7,7 +7,7 @@ class DateTimeBase(BaseModel):
     created_at: str
     updated_at: str
 
-    @field_validator("created_at", "updated_at")
+    @validator("created_at", "updated_at",  pre=True)
     def datetime_to_str(cls, v: datetime):
         if isinstance(v, datetime):
             return datetime.strftime(v, "%Y-%m-%d %H:%M:%S")
