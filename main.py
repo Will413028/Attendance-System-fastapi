@@ -48,8 +48,9 @@ def get_user_by_id(id: int, db: Session = Depends(get_db), current_user: dict = 
 
 
 @app.get("/users", response_model=list[schemas.User | None])
-def get_all_users(db: Session = Depends(get_db), attendance_type: Optional[str] = Query(None), attendance_date: Optional[date] = Query(None)):
-    return service.get_all_users(db, attendance_type=attendance_type, attendance_date=attendance_date)
+def get_all_users(db: Session = Depends(get_db)):
+    return service.get_all_users(db)
+
 
 @app.post("/users", status_code=status.HTTP_201_CREATED, response_model=schemas.User)
 def create_user(dependency=Depends(dependencies.check_new_user)):
@@ -84,5 +85,6 @@ def login(response: Response, user: models.User = Depends(dependencies.authentic
 
 
 @app.get("/attendances", response_model=list[schemas.AttendanceRecord | None])
-def get_all_attendance_records(db: Session = Depends(get_db)):
-    return service.get_all_attendance_records(db)
+def get_all_attendance_records(db: Session = Depends(get_db), attendance_type: Optional[str] = Query(None), attendance_date: Optional[date] = Query(None)):
+    return service.get_all_attendance_records(db, attendance_type=attendance_type, attendance_date=attendance_date)
+
