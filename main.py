@@ -81,3 +81,8 @@ def login(response: Response, user: models.User = Depends(dependencies.authentic
     user.token = access_token
     response.set_cookie(key="access_token", value=access_token, httponly=True)
     return user
+
+
+@app.get("/attendances", response_model=list[schemas.AttendanceRecord | None])
+def get_all_attendance_records(db: Session = Depends(get_db)):
+    return service.get_all_attendance_records(db)

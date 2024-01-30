@@ -41,6 +41,14 @@ def get_all_users(db: Session, attendance_type: Optional[str] = None, attendance
     return users
 
 
+def get_all_attendance_records(db: Session):
+    query = select(models.AttendanceRecord)
+
+    attendance_records = db.execute(query).scalars().all()
+
+    return attendance_records
+
+
 def create_user(db: Session, user: schemas.UserCreateInput):
     user.password = utils.get_password_hash(user.password)
     db_user = models.User(**user.model_dump())

@@ -49,3 +49,15 @@ class LoginInput(BaseModel):
 
 class LoginReturn(User):
     token: str
+
+class AttendanceRecord(DateTimeBase):
+    id: int
+    attendance_date: datetime
+    time_in: datetime
+    time_out: datetime
+    attendance_type: str
+    user_id: int
+    user: User
+
+    class Config:
+        from_attributes = True
