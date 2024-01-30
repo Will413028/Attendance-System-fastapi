@@ -81,7 +81,7 @@ jobs:
           image: ${{ env.IMAGE_NAME }}
           region: asia-east1
           service: app
-          flags: --port=8080
+          flags: --port=8000
 
       - name: Test URL
         run: curl "${{ steps.deploy.outputs.url }}"
