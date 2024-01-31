@@ -50,6 +50,7 @@ class LoginInput(BaseModel):
 class LoginReturn(User):
     token: str
 
+
 class AttendanceRecord(DateTimeBase):
     id: int
     attendance_date: datetime
@@ -61,3 +62,7 @@ class AttendanceRecord(DateTimeBase):
 
     class Config:
         from_attributes = True
+
+
+class AttendanceCreateInput(BaseModel):
+    user_id: int

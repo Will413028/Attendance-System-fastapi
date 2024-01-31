@@ -1,5 +1,5 @@
 from typing import Optional
-from datetime import date
+from datetime import datetime, date, timedelta
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
@@ -61,6 +61,24 @@ def create_user(db: Session, user: schemas.UserCreateInput):
     return db_user
 
 
+def create_attendance(db: Session, user_id: schemas.AttendanceCreateInput, workday_cut_off_time: str):
+    current_time = datetime.now()
+
+    workday = get_workday(current_time, workday_cut_off_time)
+
+    db_attendance_record = models.AttendanceRecord(attendance_date=workday, user_id=user_id, time_in=current_time)
+
+    db.add(db_attendance_record)
+    try:
+        db.commit()
+        db.refresh(db_attendance_record)
+    except Exception as e:
+        db.rollback()
+        print(e)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Attendance create failed')
+    return db_attendance_record
+
+
 def update_user(db: Session, update_data: schemas.UserUpdateInput, user: models.User) -> models.User:
     update_data: dict = update_data.model_dump(exclude_unset=True, exclude_none=True)
     for key, value in update_data.items():
@@ -83,3 +101,15 @@ def delete_user(db: Session, user: models.User):
     except Exception:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='User delete failed')
+
+
+def get_workday(date_time, workday_cutoff_str):
+
+    workday_cutoff = datetime.strptime(workday_cutoff_str, '%H:%M').time()
+
+    if date_time.time() < workday_cutoff:
+        workday = date_time.date() - timedelta(days=1)
+    else:
+        workday = date_time.date()
+
+    return workday

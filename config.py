@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     db_user: str
     db_pass: str
     db_name: str
+    workday_cut_off_time: str
 
     class Config:
         env_file = ".env"
