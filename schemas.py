@@ -64,5 +64,8 @@ class AttendanceRecord(DateTimeBase):
         from_attributes = True
 
 
-class AttendanceCreateInput(BaseModel):
-    user_id: int
+class AttendanceRecordUpdateInput(BaseModel):
+    attendance_date: Optional[datetime] = None
+    time_in: Optional[datetime] = None
+    time_out: Optional[datetime] = None
+    attendance_type: Optional[str] = None

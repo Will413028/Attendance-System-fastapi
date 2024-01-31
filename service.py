@@ -62,44 +62,6 @@ def create_user(db: Session, user: schemas.UserCreateInput):
     return db_user
 
 
-def create_attendance(db: Session, user_id: schemas.AttendanceCreateInput, config: Settings):
-    current_time = datetime.now()
-
-    workday = get_workday(current_time, config.workday_cut_off_time)
-
-    today_attendance_record = get_user_attendance_by_workday(db, user_id, workday)
-
-    if today_attendance_record:
-
-        today_attendance_record.time_out = current_time
-        
-        user_is_leave_early = is_leave_early(today_attendance_record.time_in, config.minimum_working_hours, current_time)
-
-        if user_is_leave_early:
-            today_attendance_record.attendance_type = 'Early Leave'
-        else:
-            today_attendance_record.attendance_type = 'Present'
-
-        try:
-            db.commit()
-            db.refresh(today_attendance_record)
-        except Exception as e:
-            db.rollback()
-            print(e)
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Attendance create failed')
-    else:
-        db_attendance_record = models.AttendanceRecord(attendance_date=workday, user_id=user_id, time_in=current_time, attendance_type= 'On Time')
-
-        db.add(db_attendance_record)
-        try:
-            db.commit()
-            db.refresh(db_attendance_record)
-        except Exception as e:
-            db.rollback()
-            print(e)
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Attendance create failed')
-
-
 def update_user(db: Session, update_data: schemas.UserUpdateInput, user: models.User) -> models.User:
     update_data: dict = update_data.model_dump(exclude_unset=True, exclude_none=True)
     for key, value in update_data.items():
@@ -124,7 +86,72 @@ def delete_user(db: Session, user: models.User):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='User delete failed')
 
 
-def get_workday(date_time, workday_cutoff_str):
+def get_attendance_record_by_id(db: Session, id: int) -> models.AttendanceRecord:
+    query = select(models.AttendanceRecord).where(models.AttendanceRecord.id == id)
+    attendance_record = db.execute(query).scalar()
+
+    return attendance_record
+
+
+def create_attendance(db: Session, user_id: schemas.AttendanceRecordUpdateInput, config: Settings):
+    message = None
+
+    current_time = datetime.now()
+
+    workday = get_workday(current_time, config.workday_cut_off_time)
+
+    today_attendance_record = get_user_attendance_by_workday(db, user_id, workday)
+
+    if today_attendance_record:
+
+        today_attendance_record.time_out = current_time
+        
+        user_is_leave_early = is_leave_early(today_attendance_record.time_in, config.minimum_working_hours, current_time)
+
+        if user_is_leave_early:
+            today_attendance_record.attendance_type = 'Early Leave'
+            message = 'User early leave'
+        else:
+            today_attendance_record.attendance_type = 'Present'
+            message = 'User Present'
+
+        try:
+            db.commit()
+            db.refresh(today_attendance_record)
+        except Exception as e:
+            db.rollback()
+            print(e)
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Attendance create failed')
+    else:
+        db_attendance_record = models.AttendanceRecord(attendance_date=workday, user_id=user_id, time_in=current_time, attendance_type= 'On Time')
+
+        db.add(db_attendance_record)
+        try:
+            db.commit()
+            db.refresh(db_attendance_record)
+        except Exception as e:
+            db.rollback()
+            print(e)
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Attendance create failed')
+    return message
+
+
+def update_attendance_record(db: Session, update_data: schemas.AttendanceRecordUpdateInput, attendance_record: models.AttendanceRecord) -> models.AttendanceRecord:
+    update_data: dict = update_data.model_dump(exclude_unset=True, exclude_none=True)
+    for key, value in update_data.items():
+        setattr(attendance_record, key, value)
+
+    try:
+        db.commit()
+        db.refresh(attendance_record)
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Attendance Record update failed')
+
+    return attendance_record
+
+
+def get_workday(date_time, workday_cutoff_str) -> date:
 
     workday_cutoff = datetime.strptime(workday_cutoff_str, '%H:%M').time()
 
@@ -144,7 +171,7 @@ def get_user_attendance_by_workday(db: Session, user_id: int, workday: date) -> 
     return attendance_record
 
 
-def is_leave_early(time_in: datetime, minimum_working_hours: int, current_time: datetime):
+def is_leave_early(time_in: datetime, minimum_working_hours: int, current_time: datetime) -> bool:
 
     working_hours = (current_time - time_in).total_seconds() / 3600
 

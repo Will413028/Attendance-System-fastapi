@@ -91,7 +91,13 @@ def get_all_attendance_records(db: Session = Depends(get_db), attendance_type: O
 
 @app.post("/attendances", status_code=status.HTTP_201_CREATED)
 def create_attendance(settings: Annotated[Settings, Depends(get_settings)], db: Session = Depends(get_db), current_user: dict = Depends(jwt.get_current_user)):
-    try:
-        service.create_attendance(db, current_user.id, settings)
-    except Exception:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Create Attendance Record failed')
+    return service.create_attendance(db, current_user.id, settings)
+
+
+@app.put("/attendances/{id}", response_model=schemas.AttendanceRecord)
+def update_attendance_record(id: int, update_data: schemas.AttendanceRecordUpdateInput, db: Session = Depends(get_db)):
+    attendance_record  = service.get_attendance_record_by_id(db, id)
+    if not attendance_record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Attendance Record not found')
+
+    return service.update_attendance_record(db, update_data, attendance_record)
