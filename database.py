@@ -16,7 +16,6 @@ class Base(DeclarativeBase):
 
 settings = Settings()
 
-print(settings)
 
 if settings.environment == 'PRODUCTION':
     connector = Connector()

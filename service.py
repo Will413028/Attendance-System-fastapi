@@ -8,6 +8,7 @@ from sqlalchemy import select, func
 import models
 import schemas
 import utils
+from config import Settings
 
 
 def get_user_by_id(db: Session, id: int) -> models.User:
@@ -61,15 +62,23 @@ def create_user(db: Session, user: schemas.UserCreateInput):
     return db_user
 
 
-def create_attendance(db: Session, user_id: schemas.AttendanceCreateInput, workday_cut_off_time: str):
+def create_attendance(db: Session, user_id: schemas.AttendanceCreateInput, config: Settings):
     current_time = datetime.now()
 
-    workday = get_workday(current_time, workday_cut_off_time)
+    workday = get_workday(current_time, config.workday_cut_off_time)
 
     today_attendance_record = get_user_attendance_by_workday(db, user_id, workday)
 
     if today_attendance_record:
+
         today_attendance_record.time_out = current_time
+        
+        user_is_leave_early = is_leave_early(today_attendance_record.time_in, config.minimum_working_hours, current_time)
+
+        if user_is_leave_early:
+            today_attendance_record.attendance_type = 'Early Leave'
+        else:
+            today_attendance_record.attendance_type = 'Present'
 
         try:
             db.commit()
@@ -79,7 +88,7 @@ def create_attendance(db: Session, user_id: schemas.AttendanceCreateInput, workd
             print(e)
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Attendance create failed')
     else:
-        db_attendance_record = models.AttendanceRecord(attendance_date=workday, user_id=user_id, time_in=current_time)
+        db_attendance_record = models.AttendanceRecord(attendance_date=workday, user_id=user_id, time_in=current_time, attendance_type= 'On Time')
 
         db.add(db_attendance_record)
         try:
@@ -89,8 +98,6 @@ def create_attendance(db: Session, user_id: schemas.AttendanceCreateInput, workd
             db.rollback()
             print(e)
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Attendance create failed')
-
-    return 'success'
 
 
 def update_user(db: Session, update_data: schemas.UserUpdateInput, user: models.User) -> models.User:
@@ -135,3 +142,10 @@ def get_user_attendance_by_workday(db: Session, user_id: int, workday: date) -> 
     attendance_record = db.execute(query).scalars().first()
 
     return attendance_record
+
+
+def is_leave_early(time_in: datetime, minimum_working_hours: int, current_time: datetime):
+
+    working_hours = (current_time - time_in).total_seconds() / 3600
+
+    return working_hours < minimum_working_hours

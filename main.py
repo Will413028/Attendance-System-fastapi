@@ -91,4 +91,7 @@ def get_all_attendance_records(db: Session = Depends(get_db), attendance_type: O
 
 @app.post("/attendances", status_code=status.HTTP_201_CREATED)
 def create_attendance(settings: Annotated[Settings, Depends(get_settings)], db: Session = Depends(get_db), current_user: dict = Depends(jwt.get_current_user)):
-    return service.create_attendance(db, current_user.id, settings.workday_cut_off_time)
+    try:
+        service.create_attendance(db, current_user.id, settings)
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Create Attendance Record failed')
