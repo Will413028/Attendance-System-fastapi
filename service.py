@@ -66,17 +66,31 @@ def create_attendance(db: Session, user_id: schemas.AttendanceCreateInput, workd
 
     workday = get_workday(current_time, workday_cut_off_time)
 
-    db_attendance_record = models.AttendanceRecord(attendance_date=workday, user_id=user_id, time_in=current_time)
+    today_attendance_record = get_user_attendance_by_workday(db, user_id, workday)
 
-    db.add(db_attendance_record)
-    try:
-        db.commit()
-        db.refresh(db_attendance_record)
-    except Exception as e:
-        db.rollback()
-        print(e)
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Attendance create failed')
-    return db_attendance_record
+    if today_attendance_record:
+        today_attendance_record.time_out = current_time
+
+        try:
+            db.commit()
+            db.refresh(today_attendance_record)
+        except Exception as e:
+            db.rollback()
+            print(e)
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Attendance create failed')
+    else:
+        db_attendance_record = models.AttendanceRecord(attendance_date=workday, user_id=user_id, time_in=current_time)
+
+        db.add(db_attendance_record)
+        try:
+            db.commit()
+            db.refresh(db_attendance_record)
+        except Exception as e:
+            db.rollback()
+            print(e)
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Attendance create failed')
+
+    return 'success'
 
 
 def update_user(db: Session, update_data: schemas.UserUpdateInput, user: models.User) -> models.User:
@@ -113,3 +127,11 @@ def get_workday(date_time, workday_cutoff_str):
         workday = date_time.date()
 
     return workday
+
+
+def get_user_attendance_by_workday(db: Session, user_id: int, workday: date) -> models.AttendanceRecord:
+    query = select(models.AttendanceRecord).filter(models.AttendanceRecord.user_id == user_id, func.date(models.AttendanceRecord.attendance_date) == workday)
+
+    attendance_record = db.execute(query).scalars().first()
+
+    return attendance_record
