@@ -22,6 +22,7 @@ jobs:
       DB_USER: ${{ secrets.DB_USER }}
       DB_PASS: ${{ secrets.DB_PASS }}
       DB_NAME: ${{ secrets.DB_NAME }}
+      WORKDAY_CUT_OFF_TIME: ${{ secrets.WORKDAY_CUT_OFF_TIME }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
