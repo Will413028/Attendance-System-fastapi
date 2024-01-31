@@ -55,7 +55,7 @@ class AttendanceRecord(DateTimeBase):
     id: int
     attendance_date: datetime
     time_in: datetime
-    time_out: datetime
+    time_out: Optional[datetime] = None
     attendance_type: str
     user_id: int
     user: User
