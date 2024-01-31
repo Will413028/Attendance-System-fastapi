@@ -23,7 +23,7 @@ jobs:
       DB_PASS: ${{ secrets.DB_PASS }}
       DB_NAME: ${{ secrets.DB_NAME }}
       WORKDAY_CUT_OFF_TIME: ${{ secrets.WORKDAY_CUT_OFF_TIME }}
-      MINIMUM_WORKING_HOURS: ${{ sercrets.MINIMUM_WORKING_HOURS }}
+      MINIMUM_WORKING_HOURS: ${{ secrets.MINIMUM_WORKING_HOURS }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
