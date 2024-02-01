@@ -10,7 +10,7 @@ import dependencies
 import models
 import schemas
 import service
-import jwt
+from utils import jwt
 from config import Settings
 from database import get_db
 

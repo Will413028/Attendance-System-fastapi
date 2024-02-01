@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine, DateTime, Integer
 from sqlalchemy.orm import sessionmaker, DeclarativeBase, mapped_column
 from sqlalchemy.sql import func
-from google.cloud.sql.connector import Connector
+from google.cloud.sql.connector import Connector, create_async_connector
 
 from config import Settings
 

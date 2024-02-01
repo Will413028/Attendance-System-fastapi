@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-import models, schemas, utils, service
+import models, schemas, utils.auth as auth, service
 from database import get_db
 
 
@@ -18,6 +18,6 @@ def authenticate_user(data: schemas.LoginInput, db: Session = Depends(get_db)) -
 
     if not db_user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User not found')
-    if not utils.verify_password(data.password, db_user.password):
+    if not auth.verify_password(data.password, db_user.password):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Invalid password or email')
     return db_user

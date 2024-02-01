@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     db_name: str
     workday_cut_off_time: str
     minimum_working_hours: int
+    holidays_api_url: str
+    holidays_api_key: str
+    country: str
 
     class Config:
         env_file = ".env"

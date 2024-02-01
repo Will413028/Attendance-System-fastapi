@@ -1,5 +1,6 @@
 from typing import Optional
 from datetime import datetime, date, timedelta
+import requests
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
@@ -7,7 +8,8 @@ from sqlalchemy import select, func
 
 import models
 import schemas
-import utils
+from utils import auth
+from utils.decorators import cache_holiday_check
 from config import Settings
 
 
@@ -48,7 +50,7 @@ def get_all_attendance_records(db: Session, attendance_type: Optional[str] = Non
 
 
 def create_user(db: Session, user: schemas.UserCreateInput):
-    user.password = utils.get_password_hash(user.password)
+    user.password = auth.get_password_hash(user.password)
     db_user = models.User(**user.model_dump())
 
     db.add(db_user)
@@ -99,6 +101,9 @@ def create_attendance(db: Session, user_id: schemas.AttendanceRecordUpdateInput,
     current_time = datetime.now()
 
     workday = get_workday(current_time, config.workday_cut_off_time)
+
+    if is_weekend(workday) or is_holiday(workday, config.country, config.holidays_api_key, config.holidays_api_url):
+        raise HTTPException(status_code=400, detail="Cannot record attendance on holidays")
 
     today_attendance_record = get_user_attendance_by_workday(db, user_id, workday)
 
@@ -176,3 +181,29 @@ def is_leave_early(time_in: datetime, minimum_working_hours: int, current_time: 
     working_hours = (current_time - time_in).total_seconds() / 3600
 
     return working_hours < minimum_working_hours
+
+
+@cache_holiday_check
+def is_holiday(date: date, country: str, holidays_api_key: str, holidays_api_url: str) -> bool:
+    params = {
+        "api_key": holidays_api_key,
+        "country": country,
+        "year": date.year,
+        "month": date.month,
+        "day": date.day,
+    }
+    try:
+        response = requests.get(holidays_api_url, params=params)
+        response.raise_for_status()
+        data = response.json()
+        holidays = data.get('response', {}).get('holidays', [])
+
+        return len(holidays) > 0
+    except requests.RequestException as e:
+        print(e)
+        return False
+
+
+def is_weekend(date: date) -> bool:
+    print(date.weekday())
+    return date.weekday() >= 5

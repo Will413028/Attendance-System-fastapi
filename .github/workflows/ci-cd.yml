@@ -24,6 +24,9 @@ jobs:
       DB_NAME: ${{ secrets.DB_NAME }}
       WORKDAY_CUT_OFF_TIME: ${{ secrets.WORKDAY_CUT_OFF_TIME }}
       MINIMUM_WORKING_HOURS: ${{ secrets.MINIMUM_WORKING_HOURS }}
+      HOLIDAYS_API_URL: ${{ secrets.HOLIDAYS_API_URL }}
+      HOLIDAYS_API_KEY: ${{ secrets.HOLIDAYS_API_KEY }}
+      COUNTRY: ${{ secrets.COUNTRY }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
