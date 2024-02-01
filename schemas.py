@@ -1,7 +1,6 @@
 from pydantic import BaseModel, Field, validator, EmailStr
 from datetime import datetime
-from typing import Optional
-
+from typing import Optional, Literal
 
 class DateTimeBase(BaseModel):
     created_at: str
@@ -21,6 +20,7 @@ class User(DateTimeBase):
     password: str
     email: str
     phone: str
+    role: str
 
     class Config:
         from_attributes = True
@@ -32,14 +32,16 @@ class UserCreateInput(BaseModel):
     password: str = Field(max_length=64, title="Password")
     email: EmailStr
     phone: str = Field(max_length=20, title="Phone Number")
+    role: Literal["Employee", "HR"] = Field(default="Employee")
 
 
 class UserUpdateInput(BaseModel):
     name: Optional[str] = Field(max_length=30, title="User name")
     account: Optional[str] = Field(max_length=100, title="Account")
-    password: Optional[str] = Field(max_length=30, title="Password")
+    password: Optional[str] = Field(max_length=64, title="Password")
     email: Optional[EmailStr]
     phone: Optional[str] = Field(max_length=20, title="Phone Number")
+    role: Optional[Literal["Employee", "HR"]] = None
 
 
 class LoginInput(BaseModel):
