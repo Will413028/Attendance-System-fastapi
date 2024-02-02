@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 import service
 from config import Settings
-from database import get_db
+from db.database import get_db
 
 settings = Settings()
 

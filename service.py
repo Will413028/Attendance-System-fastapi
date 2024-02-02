@@ -1,12 +1,13 @@
 from typing import Optional
 from datetime import datetime, date, timedelta
 import requests
+import math
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import select, func
 
-import models
+import db.models as models
 import schemas
 from utils import auth
 from utils.decorators import cache_holiday_check
@@ -207,3 +208,13 @@ def is_holiday(date: date, country: str, holidays_api_key: str, holidays_api_url
 def is_weekend(date: date) -> bool:
     print(date.weekday())
     return date.weekday() >= 5
+
+
+def calculate_distance(lat1, lon1, lat2, lon2):
+    lon1, lat1, lon2, lat2 = map(math.radians, [lon1, lat1, lon2, lat2])
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon/2)**2
+    c = 2 * math.asin(math.sqrt(a))
+    r = 6371
+    return c * r

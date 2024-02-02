@@ -1,5 +1,5 @@
-from database import Base
-from models import User
+from db.database import Base
+from db.models import User
 
 
 def auto_create_missing_table(engine):

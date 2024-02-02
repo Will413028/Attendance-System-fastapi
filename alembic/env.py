@@ -6,7 +6,7 @@ from sqlalchemy import pool
 from alembic import context
 
 from config import Settings
-from auto_create import Base
+from db.base import Base
 
 settings = Settings()
 

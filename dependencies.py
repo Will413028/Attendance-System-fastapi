@@ -1,8 +1,8 @@
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-import models, schemas, utils.auth as auth, service
-from database import get_db
+import db.models as models, schemas, utils.auth as auth, service
+from db.database import get_db
 
 
 def check_new_user(user: schemas.UserCreateInput, db: Session = Depends(get_db)) -> tuple[schemas.UserCreateInput, Session]:

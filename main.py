@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Annotated, Optional, List
+from typing import Annotated, Optional
 from datetime import date
 
 from fastapi import FastAPI, status, Depends, Response, HTTPException, Query
@@ -7,12 +7,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 import dependencies
-import models
+import db.models as models
 import schemas
 import service
 from utils import jwt
 from config import Settings
-from database import get_db
+from db.database import get_db
 
 app = FastAPI()
 
