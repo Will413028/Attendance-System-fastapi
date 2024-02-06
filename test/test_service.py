@@ -1,6 +1,12 @@
+import pytest
 from datetime import datetime, timedelta
 
 from service import is_leave_early, get_workday
+
+
+@pytest.mark.parametrize("a, b, c, expected", [(datetime(2024, 2, 2, 9), 8, datetime(2024, 2, 2, 16), True), (datetime(2024, 2, 2, 9), 10, datetime(2024, 2, 2, 20), True)])
+def test_leave_early(a, b, c, expected):
+    assert is_leave_early(a, b, c) == expected
 
 
 def test_leave_early():
