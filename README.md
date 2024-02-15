@@ -1,5 +1,39 @@
 # Attendance-System-fastapi
 
+## Demo Link
+
+https://attendance-system-frontend-5raarijksa-de.a.run.app/
+
+
+## Features
+- ### Database: using MySQL
+- ### Authentication: using jsonwebtoken
+- ### Testing: unit tests using pytest
+- ### CI/CD: using GitHub Action and GCP
+
+
+## API Endpoints
+List of available routes:
+
+**Auth routes**:\
+`POST /login` - login
+
+**User routes**:\
+`GET /users` - get all users\
+`PUT /users/:id` - update user
+
+**Attendance routes**:\
+`GET /attendances` - get all attendance\
+`POST /attendances` - create an attendance\
+`PUT /attendances/:id` - update attendance\
+`GET /attendanceQRcode` - get attendance QRcode
+
+**Holiday routes**:\
+`POST /holidays` - create holiday\
+`GET /holidays` - get all holiday
+
+
+## How to run:
 
 Run server
 

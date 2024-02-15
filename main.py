@@ -34,11 +34,6 @@ def get_settings():
     return Settings()
 
 
-@app.get('/')
-def hello():
-    return {'message': 'Hello World'}
-
-
 @app.get("/users/{id}", response_model=schemas.User)
 def get_user_by_id(id: int, db: Session = Depends(get_db), current_user: dict = Depends(jwt.get_current_user)):
     user = service.get_user_by_id(db, id)
