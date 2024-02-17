@@ -28,8 +28,11 @@ def get_user_by_account(db: Session, account: str) -> models.User:
     return user
 
 
-def get_all_users(db: Session):
+def get_all_users(db: Session, user_name: Optional[str] = None):
     query = select(models.User)
+
+    if user_name:
+        query = query.filter(models.User.name.like(f"%{user_name}%"))
 
     users = db.execute(query).scalars().all()
 
