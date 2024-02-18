@@ -85,9 +85,9 @@ def logout(response: Response):
     return {"message": "Logout successful"}
 
 
-@app.get("/attendances", response_model=list[schemas.AttendanceRecord | None])
-def get_all_attendance_records(db: Session = Depends(get_db), attendance_type: Optional[str] = Query(None), attendance_date: Optional[date] = Query(None)):
-    return service.get_all_attendance_records(db, attendance_type=attendance_type, attendance_date=attendance_date)
+@app.get("/attendances", response_model=schemas.PaginatedResponse[schemas.AttendanceRecord])
+def get_all_attendance_records(db: Session = Depends(get_db), attendance_type: Optional[str] = Query(None), attendance_date: Optional[date] = Query(None), page: int = Query(1), page_size: int = Query(10)):
+    return service.get_all_attendance_records(db, attendance_type=attendance_type, attendance_date=attendance_date, page=page, page_size=page_size)
 
 
 @app.post("/attendances", status_code=status.HTTP_201_CREATED)

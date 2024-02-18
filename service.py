@@ -39,7 +39,7 @@ def get_all_users(db: Session, user_name: Optional[str] = None):
     return users
 
 
-def get_all_attendance_records(db: Session, attendance_type: Optional[str] = None, attendance_date: Optional[date] = None):
+def get_all_attendance_records(db: Session, attendance_type: Optional[str] = None, attendance_date: Optional[date] = None, page: int = 1, page_size: int = 10):
     query = select(models.AttendanceRecord)
 
     if attendance_type:
@@ -48,9 +48,20 @@ def get_all_attendance_records(db: Session, attendance_type: Optional[str] = Non
     if attendance_date:
         query = query.filter(func.date(models.AttendanceRecord.attendance_date) == attendance_date)
 
-    attendance_records = db.execute(query).scalars().all()
+    total_count = db.execute(select(func.count()).select_from(query.subquery())).scalar()
 
-    return attendance_records
+    offset = (page - 1) * page_size
+
+    attendance_records = db.execute(query.offset(offset).limit(page_size)).scalars().all()
+
+    total_pages = (total_count + page_size - 1) // page_size
+
+    return {
+        "total_count": total_count,
+        "total_pages": total_pages,
+        "current_page": page,
+        "data": attendance_records
+    }
 
 
 def create_user(db: Session, user: schemas.UserCreateInput):

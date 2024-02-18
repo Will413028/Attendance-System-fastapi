@@ -1,6 +1,10 @@
 from pydantic import BaseModel, Field, validator, EmailStr
 from datetime import datetime
-from typing import Optional, Literal
+from typing import Optional, Literal, Generic, TypeVar
+
+
+T = TypeVar('T')
+
 
 class DateTimeBase(BaseModel):
     created_at: str
@@ -11,6 +15,13 @@ class DateTimeBase(BaseModel):
         if isinstance(v, datetime):
             return datetime.strftime(v, "%Y-%m-%d %H:%M:%S")
         return str(v)
+
+
+class PaginatedResponse(BaseModel, Generic[T]):
+    total_count: int
+    total_pages: int
+    current_page: int
+    data: list[T]
 
 
 class User(DateTimeBase):
