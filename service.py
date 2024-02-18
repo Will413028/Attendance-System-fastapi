@@ -28,15 +28,26 @@ def get_user_by_account(db: Session, account: str) -> models.User:
     return user
 
 
-def get_all_users(db: Session, user_name: Optional[str] = None):
+def get_all_users(db: Session, user_name: Optional[str] = None, page: int = 1, page_size: int = 10):
     query = select(models.User)
 
     if user_name:
         query = query.filter(models.User.name.like(f"%{user_name}%"))
 
-    users = db.execute(query).scalars().all()
+    total_count = db.execute(select(func.count()).select_from(query.subquery())).scalar()
 
-    return users
+    offset = (page - 1) * page_size
+
+    users = db.execute(query.offset(offset).limit(page_size)).scalars().all()
+
+    total_pages = (total_count + page_size - 1) // page_size
+
+    return {
+        "total_count": total_count,
+        "total_pages": total_pages,
+        "current_page": page,
+        "data": users
+    }
 
 
 def get_all_attendance_records(db: Session, attendance_type: Optional[str] = None, attendance_date: Optional[date] = None, page: int = 1, page_size: int = 10):

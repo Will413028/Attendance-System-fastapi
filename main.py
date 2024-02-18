@@ -42,9 +42,9 @@ def get_user_by_id(id: int, db: Session = Depends(get_db), current_user: dict = 
     return user
 
 
-@app.get("/users", response_model=list[schemas.User | None])
-def get_all_users(db: Session = Depends(get_db), user_name: Optional[str] = Query(None)):
-    return service.get_all_users(db, user_name=user_name)
+@app.get("/users", response_model=schemas.PaginatedResponse[schemas.User])
+def get_all_users(db: Session = Depends(get_db), user_name: Optional[str] = Query(None), page: int = Query(1), page_size: int = Query(10)):
+    return service.get_all_users(db, user_name=user_name, page=page, page_size=page_size)
 
 
 @app.post("/users", status_code=status.HTTP_201_CREATED, response_model=schemas.User)
