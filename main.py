@@ -50,7 +50,13 @@ def get_all_users(db: Session = Depends(get_db), user_name: Optional[str] = Quer
 @app.post("/users", status_code=status.HTTP_201_CREATED, response_model=schemas.User)
 def create_user(dependency=Depends(dependencies.check_new_user)):
     user, db = dependency
-    return service.create_user(db, user)
+    try:
+        return service.create_user(db, user)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f'Error creating user: {str(e)}'
+        )
 
 
 @app.put("/users/{id}", response_model=schemas.User)
