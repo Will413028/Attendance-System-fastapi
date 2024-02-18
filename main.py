@@ -17,7 +17,8 @@ from db.database import get_db
 app = FastAPI()
 
 origins = [
-    'http://localhost:3000'
+    'http://localhost:3000',
+    'https://attendance-system-frontend-5raarijksa-de.a.run.app'
 ]
 
 app.add_middleware(
