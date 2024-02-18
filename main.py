@@ -79,6 +79,12 @@ def login(response: Response, user: models.User = Depends(dependencies.authentic
     return user
 
 
+@app.post("/logout", status_code=status.HTTP_200_OK)
+def logout(response: Response):
+    response.set_cookie(key="access_token", value="expired", expires=-1)
+    return {"message": "Logout successful"}
+
+
 @app.get("/attendances", response_model=list[schemas.AttendanceRecord | None])
 def get_all_attendance_records(db: Session = Depends(get_db), attendance_type: Optional[str] = Query(None), attendance_date: Optional[date] = Query(None)):
     return service.get_all_attendance_records(db, attendance_type=attendance_type, attendance_date=attendance_date)
