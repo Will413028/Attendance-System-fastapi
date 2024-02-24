@@ -1,10 +1,5 @@
 # Attendance-System-fastapi
 
-## Demo Link
-
-https://attendance-system-frontend-5raarijksa-de.a.run.app/
-
-
 ## Features
 - ### Database: using MySQL
 - ### Authentication: using jsonwebtoken
