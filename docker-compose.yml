@@ -1,25 +1,22 @@
 version: "3.5"
 services:
-    attendance-system-backend:
-      container_name: attendance-system-backend
-      image: attendance-system-backend
-      ports:
-        - "8000:8000"
-      restart: always
-    mysql:
-        container_name: mysql
-        image: mysql
-        ports:
-            - "3306:3306"
-        command:
-            [
-                "--character-set-server=utf8mb4",
-                "--collation-server=utf8mb4_unicode_ci",
-                "--sql_mode=STRICT_TRANS_TABLES,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION",
-            ]
-        environment:
-            - MYSQL_RANDOM_ROOT_PASSWORD=yes
-              - MYSQL_USER=myuser
-            - MYSQL_PASSWORD=12345678
-              - MYSQL_DATABASE=attendance-system
-        restart: always
+  attendance-system-backend:
+    container_name: attendance-system-backend
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: attendance-system-backend
+    ports:
+      - "8000:8000"
+    restart: always
+  db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_USER: <username>
+      MYSQL_RANDOM_ROOT_PASSWORD: yes
+      MYSQL_PASSWORD: <password>
+      MYSQL_DATABASE: <dbname>
+    ports:
+      - "3306:3306"
